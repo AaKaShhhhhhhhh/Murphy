@@ -1,0 +1,59 @@
+# Incident Response Workflow Test Configuration
+# This configuration uses mock data for testing purposes
+
+name: incident-response-test
+description: Test configuration for incident-response workflow
+
+trigger:
+  type: webhook
+  endpoint: /incidents/test-alert
+  auth: test_token
+
+inputs:
+  severity: "High"
+  alert_name: "Test Alert"
+  affected_service: "Test Service"
+  metrics:
+    cpu_usage: 95
+    error_rate: 0.5
+
+variables:
+  incident_id: TEST-INCIDENT-001
+  start_time: "2026-02-09T10:00:00Z"
+
+stages:
+  - name: Alert & Initial Response
+    type: parallel
+    steps:
+      - name: Post Initial Alert
+        agent: communicator
+        action: post_alert
+        inputs:
+          severity: ${inputs.severity}
+          alert_name: ${inputs.alert_name}
+          affected_service: ${inputs.affected_service}
+      - name: Start Investigation
+        agent: detective
+        action: start_investigation
+        inputs:
+          metrics: ${inputs.metrics}
+
+  - name: Investigation
+    type: sequential
+    timeout: 3m
+    steps:
+      - name: Analyze Metrics
+        agent: detective
+        action: analyze_metrics
+      - name: Correlate Changes
+        agent: detective
+        action: correlate_changes
+      - name: Identify Root Cause
+        agent: detective
+        action: identify_root_cause
+
+outputs:
+  incident_id: ${incident_id}
+  resolution_time: ${duration()}
+  root_cause: "Mock Root Cause"
+  post_mortem_url: "https://example.com/post-mortems/mock"

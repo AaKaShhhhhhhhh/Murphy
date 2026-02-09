@@ -1,0 +1,129 @@
+# Incident Response Workflow Configuration
+# Compatible with Archestra.AI
+
+name: incident-response
+description: Automated incident detection, investigation, and resolution
+
+trigger:
+  type: webhook
+  endpoint: /incidents/alert
+  auth: bearer_token
+
+inputs:
+  severity: string
+  alert_name: string
+  affected_service: string
+  metrics: object
+
+variables:
+  incident_id: ${generate_id()}
+  start_time: ${timestamp()}
+
+stages:
+  - name: Alert & Initial Response
+    type: parallel
+    steps:
+      - name: Post Initial Alert
+        agent: communicator
+        action: post_alert
+        inputs:
+          severity: ${inputs.severity}
+          alert_name: ${inputs.alert_name}
+          affected_service: ${inputs.affected_service}
+      - name: Start Investigation
+        agent: detective
+        action: start_investigation
+        inputs:
+          metrics: ${inputs.metrics}
+
+  - name: Investigation
+    type: sequential
+    timeout: 3m
+    steps:
+      - name: Analyze Metrics
+        agent: detective
+        action: analyze_metrics
+      - name: Correlate Changes
+        agent: detective
+        action: correlate_changes
+      - name: Identify Root Cause
+        agent: detective
+        action: identify_root_cause
+
+  - name: Communication Update
+    type: sequential
+    steps:
+      - name: Post Root Cause Findings
+        agent: communicator
+        action: post_root_cause
+        inputs:
+          root_cause: ${detective.findings.root_cause}
+
+  - name: Fix Proposal & Approval Gate
+    type: approval
+    timeout: 5m
+    steps:
+      - name: Determine Fix Approach
+        agent: detective
+        action: propose_fix
+      - name: Post Approval Request
+        agent: communicator
+        action: post_approval_request
+        inputs:
+          fix_proposal: ${detective.fix_proposal}
+      - name: Approval Gate
+        type: manual
+        on_timeout: escalate
+
+  - name: Fix Execution
+    type: conditional
+    conditions:
+      - if: ${approval.status == "approved"}
+        steps:
+          - name: Execute Fix
+            agent: detective
+            action: execute_fix
+      - if: ${approval.status == "rejected"}
+        steps:
+          - name: Mark for Manual Handling
+            agent: communicator
+            action: escalate_manual
+      - if: ${approval.status == "timeout"}
+        steps:
+          - name: Escalate to Senior Engineer
+            agent: communicator
+            action: escalate_senior
+
+  - name: Verification
+    type: sequential
+    timeout: 2m
+    steps:
+      - name: Verify Metrics
+        agent: detective
+        action: verify_metrics
+      - name: Re-Investigation Loop
+        type: loop
+        condition: ${detective.verification_status != "resolved"}
+        steps:
+          - name: Re-Investigate
+            agent: detective
+            action: re_investigate
+
+  - name: Resolution & Documentation
+    type: sequential
+    steps:
+      - name: Announce Resolution
+        agent: communicator
+        action: post_resolution
+      - name: Write Post-Mortem
+        agent: learning
+        action: write_post_mortem
+      - name: Create Action Items
+        agent: learning
+        action: create_action_items
+
+outputs:
+  incident_id: ${incident_id}
+  resolution_time: ${duration()}
+  root_cause: ${detective.findings.root_cause}
+  post_mortem_url: ${learning.post_mortem_url}
