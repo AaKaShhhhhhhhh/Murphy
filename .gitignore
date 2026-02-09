@@ -1,0 +1,80 @@
+# ==== Python ====
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+.env/
+.uv/
+
+# Packaging / build
+build/
+dist/
+*.egg-info/
+.eggs/
+.wheels/
+pip-wheel-metadata/
+
+# Type checking / tooling
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+.pyre/
+.pytype/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets (keep example checked in)
+.env
+.env.*
+!.env.example
+
+# ==== Node.js ====
+node_modules/
+.npm/
+.pnpm-store/
+.yarn/
+
+# Node build artifacts
+*.tsbuildinfo
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ==== Streamlit ====
+.streamlit/secrets.toml
+
+# ==== VS Code ====
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# ==== IDEs ====
+.idea/
+*.iml
+
+# ==== MCP / misc ====
+.mcp/
+
+# ==== Tests output ====
+reports/

@@ -1,0 +1,18 @@
+[project]
+name = "github-server"
+version = "0.1.0"
+description = "GitHub MCP Server for interacting with GitHub REST API v3"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Hackathon Team" }]
+
+dependencies = [
+  "mcp>=1.0.0",
+  "httpx>=0.27",
+  "pydantic>=2.6",
+]
+
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"

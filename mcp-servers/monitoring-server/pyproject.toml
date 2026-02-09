@@ -1,0 +1,17 @@
+[project]
+name = "monitoring-server"
+version = "0.1.0"
+description = "Mock Monitoring MCP Server for demo purposes"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Hackathon Team" }]
+
+dependencies = [
+  "mcp>=1.0.0",
+  "pydantic>=2.6",
+]
+
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
